@@ -1,0 +1,29 @@
+<table>
+  <thead>
+    <th colspan='2' style='text-align:center; padding-bottom: 5%;'>
+      <b>Welcome to the Mortgage Calculator </b>
+    </th>
+  </thead>
+<form action='/mortgagr' method='post'>
+  <tr>
+    <td><label for='principal'> What is the principal amount of your loan?</label></td>
+    <td><input type='text' id='principal' name='principal' /></td>
+  </tr><tr>
+    <td><label for='rate'> What is the interest rate? </label></td>
+    <td><input type='text' id='rate' name='rate' /></td>
+  </tr><tr>
+  <td><label for='term'> How many years is your loan over? </label></td>
+    <td><input type='text' id='term' name='term' /></td>
+  </tr><tr>
+    <td colspan='2' style='text-align:center;'>
+      <br/><input type='submit' value='Submit' />
+    </td>
+  </tr>
+</form>
+</table>
+
+<div class='answer'>
+  <% if @result %>
+    <%= "Your monthly mortgage payment will be $#{@result.round(2)}" %>
+  <% end %>
+</div>

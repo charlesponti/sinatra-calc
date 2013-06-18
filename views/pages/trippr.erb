@@ -1,0 +1,35 @@
+<table>
+  <thead>
+    <th colspan='2' style='text-align:center; padding-bottom: 5%;'>
+      <b>Welcome to the Trip Calculator </b>
+    </th>
+  </thead>
+<form action='/trippr' method='post'>
+  <tr>
+    <td><label for='distance'>How many miles are you driving?</label></td>
+    <td><input type='text' id='distance' name='distance' /></td>
+  </tr><tr>
+    <td><label for='mpg'> How many miles does your car get per gallon? </label></td>
+    <td><input type='text' id='mpg' name='mpg' /></td>
+  </tr><tr>
+    <td><label for='price'> How much does gas cost? </label></td>
+    <td><input type='text' id='price' name='price' /></td>
+  </tr><tr>
+    <td><label for='speed'> How fast will you be driving? </label></td>
+    <td><input type='text' id='speed' name='speed' /><br/></td>
+  </tr><tr>
+    <td colspan='2' style='text-align:center;'>
+      <br/><input type='submit' value='Submit' />
+    </td>
+  </tr>
+</form>
+</table>
+
+<div class='answer'>
+<% if @cost %>
+   <%= "Your trip is going to take #{@time} hours and will cost $#{@cost}." %>
+   <% if @speed > 60 %>
+     <%= "<br>Because you exceeded the speed limit, your mpg was reduced to #{@mpg}" %>
+   <% end %>
+<% end %>
+</div>

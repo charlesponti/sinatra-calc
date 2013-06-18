@@ -1,0 +1,34 @@
+<table style='width: 45%; float: left'>
+  <thead>
+    <th colspan='3' style='text-align: center; padding-bottom: 5%'>
+      <b> Exponentiation </b>
+    </th>
+  </thead>
+  <form action='/adv-calc' method='post'>
+  <tr>
+    <td style='text-align: center;'>
+      <input type='text' class='num1' name='num1' />
+    </td>
+    <td style='text-align: center;'>
+      <input type='text' class='num2' name='num2' />
+    </td>
+  </tr><tr>
+    <td colspan='3' style='text-align: center; padding-top: 5%;'>
+      <input type='submit' value='Submit' />
+    </td>
+  </tr>
+  <% if @result %>
+  <tr>
+    <td colspan='3' style='text-align: center; padding-top: 5%;'>
+      <%= @result %>
+    </td>
+  </tr>
+  <% end %>
+</form>
+</table>
+
+<div id='sqrt'>
+  <h2>Square Root</h2>
+  <input id='user_val' type='text' />
+  <div id='sqrt-answer'></div>
+</div>

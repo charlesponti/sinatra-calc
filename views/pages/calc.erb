@@ -1,0 +1,35 @@
+<table>
+  <thead>
+    <th colspan='3' style='text-align: center; padding-bottom: 5%'>
+      <b> Basic Calc</b>
+    </th>
+  </thead>
+  <form action='/calc' method='post'>
+  <tr>
+    <td style='text-align: center;'>
+      <input type='text' class='num1' name='num1' />
+    </td>
+    <td style='text-align: center;'>
+      <select name='formula'>
+        <option value='add'> + </option>
+        <option value='subtract'> - </option>
+        <option value='multiply'> x </option>
+        <option value='divide'> / </option>
+      </select>
+    </td>
+    <td style='text-align: center;'>
+      <input type='text' class='num2' name='num2' />
+    </td>
+  </tr><tr>
+    <td colspan='3' style='text-align: center; padding-top: 5%;'>
+      <input type='submit' value='Submit' />
+    </td>
+  </tr>
+</form>
+</table>
+
+<div class='answer'>
+  <% if @result %>
+    <%= @result %>
+  <% end %>
+</div>
