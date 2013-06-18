@@ -1,1 +1,1 @@
-Blah Blah Blah Blah
+The best damn calculator that ever lived.
