@@ -27,9 +27,11 @@
 
 <div class='answer'>
 <% if @cost %>
-   <%= "Your trip is going to take #{@time} hours and will cost $#{@cost}." %>
+   <%= "Your trip is going to take #{@time} hours and will cost $#{@cost}.<br>" %>
    <% if @speed > 60 %>
      <%= "<br>Because you exceeded the speed limit, your mpg was reduced to #{@mpg}" %>
+  <% else %>
+      <%= "<br>Thank you for following the speed limit!" %>
    <% end %>
 <% end %>
 </div>
