@@ -4,81 +4,27 @@ use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
 use serde::Deserialize;
 
-use crate::{
-    db::{DEFAULT_DATABASE_PATH, add_usage, backup_possessions, connect, load_data, migrate},
-    state::{compute_state, parse_flexible_date, parse_yyyy_mm_dd},
-    tools::{convert_csv, unify_csv},
-};
-
 #[derive(Parser)]
 #[command(
     author,
     version,
-    about = "mater CLI (tracking port)",
-    long_about = "A small CLI for tracking acquisition/use of substances backed by SQLite with typed SQL queries.",
+    about = "geo - geolocation lookup and CSV geocoding",
+    long_about = "A CLI for looking up place coordinates via OpenStreetMap Nominatim and enriching CSV files with geocoding data.",
     arg_required_else_help = true
 )]
 pub struct Cli {
-    /// Path to the SQLite database file.
-    #[arg(long, default_value = DEFAULT_DATABASE_PATH, global = true)]
-    pub database: PathBuf,
-
     #[command(subcommand)]
     pub command: Command,
 }
 
 #[derive(Subcommand)]
 pub enum Command {
-    /// Show current totals (and optionally remaining at a past date)
-    Status {
-        /// Show the remaining amount as of the given date (YYYY-MM-DD)
-        #[arg(long)]
-        date: Option<String>,
-    },
-    /// Record a new usage event (appends to the log)
-    Add {
-        /// Amount to record
-        amount: f64,
-        /// Unit of the amount (default: g)
-        #[arg(long, default_value = "g")]
-        unit: String,
-    },
-    /// Export the current "possessions" list to a JSON file (db format)
-    Backup {
-        /// Output file path
-        #[arg(long, default_value = "possessions-backup.json")]
-        output: PathBuf,
-    },
-    /// Normalize date strings in a CSV file to YYYY-MM-DD.
-    FormatDate {
-        /// Input CSV file to transform.
-        #[arg(short = 'f', long)]
-        file: PathBuf,
-        /// Column(s) to normalize. Can be provided multiple times or as a comma-delimited list.
-        #[arg(short = 'c', long, value_delimiter = ',')]
-        columns: Vec<String>,
-    },
-    /// Convert tracking YAML/JSON/CSV files into CSV format.
-    ConvertCsv {
-        /// Directory containing source files.
-        #[arg(long, default_value = "../tracking")]
-        input: PathBuf,
-    },
-    /// Unify multiple tracking CSV files into a single CSV.
-    UnifyCsv {
-        /// Directory containing source CSV files.
-        #[arg(long, default_value = "../tracking")]
-        input: PathBuf,
-        /// Output unified CSV.
-        #[arg(long, default_value = "../tracking/unified.csv")]
-        output: PathBuf,
-    },
     /// Lookup a place name using OSM Nominatim and print coordinates.
     Geocode {
         /// The query to look up (e.g. "Mahopac, New York").
         query: String,
     },
-    /// Geocode a CSV column (adds lat/lon columns).
+    /// Geocode a CSV column (adds lat/lon/city/state/country/country_code columns).
     GeocodeCsv {
         /// Input CSV file.
         #[arg(short = 'f', long)]
@@ -139,7 +85,7 @@ async fn geocode_nominatim(query: &str) -> Result<Option<NominatimResult>> {
 
     let res = match client
         .get(&url)
-        .header("User-Agent", "mater-cli/1.0 (contact: none)")
+        .header("User-Agent", "geo-cli/1.0")
         .send()
         .await
     {
@@ -545,213 +491,32 @@ fn normalize_places_cities() -> Result<()> {
 pub async fn run() -> Result<()> {
     let cli = Cli::parse();
 
-    match &cli.command {
-        Command::FormatDate { file, columns } => {
-            eprintln!(
-                "warning: `mater format-date` is deprecated; use `voidline data format-date -f {} -c {}` instead",
-                file.display(),
-                columns.join(",")
-            );
-            format_date(file, columns)?;
-            return Ok(());
-        }
-        Command::ConvertCsv { input } => {
-            eprintln!(
-                "warning: `mater convert-csv` is deprecated; use `voidline data convert --input {}` instead",
-                input.display()
-            );
-            convert_csv(input)?;
-            println!("converted data in {}", input.display());
-            return Ok(());
-        }
-        Command::UnifyCsv { input, output } => {
-            eprintln!(
-                "warning: `mater unify-csv` is deprecated; use `voidline data unify --input {} --output {}` instead",
-                input.display(),
-                output.display()
-            );
-            unify_csv(input, output)?;
-            println!("wrote unified CSV to {}", output.display());
-            return Ok(());
-        }
+    match cli.command {
         Command::Geocode { query } => {
-            eprintln!(
-                "warning: `mater geocode` is deprecated; use `voidline places geocode \"{}\"` instead",
-                query
-            );
-            match geocode_nominatim(query).await? {
+            match geocode_nominatim(&query).await? {
                 Some(place) => {
                     println!("{}", place.display_name);
                     println!("lat={}, lon={}", place.lat, place.lon);
                 }
                 None => println!("no results for '{}'", query),
             }
-            return Ok(());
         }
         Command::GeocodeCsv { file, column, output } => {
             let output = output
-                .clone()
                 .unwrap_or_else(|| file.with_extension("geocoded.csv"));
-            eprintln!(
-                "warning: `mater geocode-csv` is deprecated; use `voidline places geocode-csv --file {} --column {} --output {}` instead",
-                file.display(),
-                column,
-                output.display()
-            );
-            geocode_csv(file, column, &output).await?;
+            geocode_csv(&file, &column, &output).await?;
             println!("wrote geocoded CSV to {}", output.display());
-            return Ok(());
         }
         Command::FixPlaceCitiesTypos => {
             fix_places_cities_typos()?;
-            return Ok(());
         }
         Command::GeocodePlaceCities => {
-            eprintln!(
-                "warning: `mater geocode-place-cities` is deprecated; use `voidline places geocode-place-cities` instead"
-            );
             geocode_places_cities().await?;
-            return Ok(());
         }
         Command::NormalizePlaceCities => {
-            eprintln!(
-                "warning: `mater normalize-place-cities` is deprecated; use `voidline places normalize-place-cities` instead"
-            );
             normalize_places_cities()?;
-            return Ok(());
-        }
-        _ => {}
-    }
-
-    let database_url = format!("sqlite://{}", cli.database.display());
-    let pool = connect(&database_url)
-        .await
-        .with_context(|| format!("failed to connect to {}", cli.database.display()))?;
-    migrate(&pool).await?;
-
-    match cli.command {
-        Command::Status { date } => {
-            let for_date = match date.as_deref() {
-                Some(value) => Some(
-                    parse_yyyy_mm_dd(value).ok_or_else(|| anyhow!("invalid date: {}", value))?,
-                ),
-                None => None,
-            };
-
-            let data = load_data(&pool).await?;
-            let state = compute_state(&data, for_date);
-            println!("total acquired: {:.2} g", state.total_acquired);
-            println!("remaining (from log): {:.2} g", state.remaining);
-            if let (Some(d), Some(rem)) = (for_date, state.remaining_at_date) {
-                println!("remaining on {}: {:.2} g", d.format("%Y-%m-%d"), rem);
-            }
-            println!("tare weight: {:.2} g", state.tare);
-            println!("calculated current weight: {:.2} g", state.current_weight);
-        }
-        Command::Add { amount, unit } => {
-            let entry = add_usage(&pool, amount, &unit).await?;
-            println!("added usage entry: {:?}", entry);
-
-            let data = load_data(&pool).await?;
-            let state = compute_state(&data, None);
-            println!("new remaining (from log): {:.2} g", state.remaining);
-        }
-        Command::Backup { output } => {
-            backup_possessions(&pool, &output).await?;
-            println!("written backup to {}", output.display());
-        }
-        Command::FormatDate { .. }
-        | Command::ConvertCsv { .. }
-        | Command::UnifyCsv { .. }
-        | Command::Geocode { .. }
-        | Command::GeocodeCsv { .. }
-        | Command::FixPlaceCitiesTypos
-        | Command::GeocodePlaceCities
-        | Command::NormalizePlaceCities => unreachable!(),
-    }
-
-    Ok(())
-}
-
-fn normalize_date_value(value: &str) -> String {
-    let value = value.trim();
-    if value.is_empty() {
-        return value.to_string();
-    }
-
-    // Handle ranges like "April 1, 2024 → April 5, 2024".
-    if value.contains('→') {
-        let parts: Vec<_> = value.split('→').map(|p| p.trim()).collect();
-        let normalized: Vec<String> = parts
-            .into_iter()
-            .map(|part| {
-                parse_flexible_date(part)
-                    .map(|d| d.format("%Y-%m-%d").to_string())
-                    .unwrap_or_else(|| part.to_string())
-            })
-            .collect();
-        return normalized.join(" → ");
-    }
-
-    parse_flexible_date(value)
-        .map(|d| d.format("%Y-%m-%d").to_string())
-        .unwrap_or_else(|| value.to_string())
-}
-
-fn format_date(file: &PathBuf, columns: &[String]) -> Result<()> {
-    let mut reader = csv::ReaderBuilder::new()
-        .flexible(true)
-        .from_path(file)
-        .with_context(|| format!("failed to open {}", file.display()))?;
-
-    let headers = reader
-        .headers()
-        .with_context(|| format!("failed to read headers from {}", file.display()))?
-        .clone();
-
-    let mut col_indices = Vec::new();
-    for col in columns {
-        if let Some(idx) = headers.iter().position(|h| h == col) {
-            col_indices.push(idx);
-        } else {
-            return Err(anyhow!("column not found: {}", col));
         }
     }
-
-    let tmp_path = file.with_extension("tmp");
-    let mut writer = csv::WriterBuilder::new()
-        .has_headers(true)
-        .from_path(&tmp_path)
-        .with_context(|| format!("failed to create temp file {}", tmp_path.display()))?;
-
-    writer.write_record(&headers)?;
-    for result in reader.records() {
-        let record = result.with_context(|| format!("failed to read record from {}", file.display()))?;
-        let mut normalized: Vec<String> = record.iter().map(|v| v.to_string()).collect();
-        for &idx in &col_indices {
-            if let Some(val) = normalized.get(idx) {
-                normalized[idx] = normalize_date_value(val);
-            }
-        }
-        writer.write_record(&normalized)?;
-    }
-    writer.flush()?;
-
-    // Replace original file with normalized file (keeping existing permissions).
-    let backup_path = file.with_extension("bak");
-    if backup_path.exists() {
-        fs::remove_file(&backup_path)
-            .with_context(|| format!("failed to remove existing backup {}", backup_path.display()))?;
-    }
-    fs::rename(file, &backup_path)
-        .with_context(|| format!("failed to backup {}", file.display()))?;
-
-    if file.exists() {
-        fs::remove_file(file)
-            .with_context(|| format!("failed to remove original file {}", file.display()))?;
-    }
-    fs::rename(&tmp_path, file)
-        .with_context(|| format!("failed to write normalized file to {}", file.display()))?;
 
     Ok(())
 }

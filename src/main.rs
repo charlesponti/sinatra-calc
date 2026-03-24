@@ -1,4 +1,4 @@
-use mater::run;
+use geo::run;
 
 #[tokio::main]
 async fn main() {
