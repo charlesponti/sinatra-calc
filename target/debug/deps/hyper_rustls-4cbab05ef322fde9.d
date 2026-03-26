@@ -1,9 +1,0 @@
-/Users/charlesponti/Developer/sinatra-calc/target/debug/deps/hyper_rustls-4cbab05ef322fde9.d: /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/lib.rs /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/config.rs /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/connector.rs /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/connector/builder.rs /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/stream.rs
-
-/Users/charlesponti/Developer/sinatra-calc/target/debug/deps/libhyper_rustls-4cbab05ef322fde9.rmeta: /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/lib.rs /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/config.rs /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/connector.rs /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/connector/builder.rs /Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/stream.rs
-
-/Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/lib.rs:
-/Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/config.rs:
-/Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/connector.rs:
-/Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/connector/builder.rs:
-/Users/charlesponti/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/hyper-rustls-0.24.2/src/stream.rs:

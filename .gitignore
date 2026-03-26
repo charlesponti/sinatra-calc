@@ -1,2 +1,40 @@
 .DS_Store
 Thumbs.db
+
+# Rust
+/target/
+**/target/
+**/*.rs.bk
+Cargo.lock
+
+# If using rust-analyzer and VS Code
+/.vscode/
+
+# Build output
+*.rmeta
+*.d
+*.la
+*.lo
+*.o
+*.a
+*.rlib
+*.so
+*.dylib
+*.dll
+*.exe
+*.pdb
+*.idb
+
+# CARGO_HOME
+/target
+/Cargo.lock
+
+# MacOS
+*.DS_Store
+
+# Editor temp files
+*~
+*.swp
+*.swo
+*.idea/
+*.vscode/
