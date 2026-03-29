@@ -4,6 +4,12 @@ version = "0.1.0"
 edition = "2021"
 default-run = "geo"
 description = "CLI tool for geolocation lookups and CSV geocoding via OpenStreetMap Nominatim"
+license = "MIT"
+repository = "https://github.com/charlesponti/geo"
+readme = "README.md"
+keywords = ["cli", "geocoding", "csv", "nominatim"]
+categories = ["command-line-utilities", "data-structures"]
+authors = ["Charles Ponti"]
 
 [dependencies]
 anyhow = "1"
@@ -18,4 +24,5 @@ urlencoding = "2"
 assert_cmd = "2"
 predicates = "2"
 tempfile = "3"
-
+httpmock = "0.8"
+serde_json = "1"

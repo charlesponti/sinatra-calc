@@ -1,22 +1,46 @@
-# Mater
+# Geo
 
-A Rust learning project (2025) - successor to the sinatra-calc Ruby project (2013).
+`geo` is a CLI for geolocation lookups and CSV geocoding via OpenStreetMap Nominatim.
 
-## Build
+Repository: `github.com/charlesponti/geo`
+
+## Requirements
+
+- Rust stable
+## Install
 
 ```bash
 cargo build --release
 ```
 
-## Run
+## Usage
 
 ```bash
-cargo run
+cargo run -- --help
+cargo run -- geocode "New York, NY"
+cargo run -- geocode-csv --file input.csv --column Name --output output.csv
 ```
 
-## Test
+The binary name is `geo`.
+
+## Development
 
 ```bash
-cargo test
+cargo fmt --all
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test --all-targets
 ```
 
+## Repository Layout
+
+- `src/` application code
+- `tests/` integration tests
+- `.github/workflows/` CI
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for local development and contribution guidance.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
