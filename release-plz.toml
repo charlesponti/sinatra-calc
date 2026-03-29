@@ -1,0 +1,7 @@
+[workspace]
+git_release_enable = false
+dependencies_update = false
+
+[[package]]
+name = "geo"
+git_release_enable = true
